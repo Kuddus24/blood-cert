@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: blood-certificate
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: APP_URL
+        value: https://blood-certificate.onrender.com   # ← change after first deploy

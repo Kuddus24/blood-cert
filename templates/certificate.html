@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Certificate – {{ donor.name }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet"/>
+  <style>
+    :root { --red:#B91C1C; --red-dark:#7F1D1D; --red-pale:#FEF2F2; --red-mid:#FCA5A5; }
+    body { font-family:'Inter',sans-serif; background:#f9fafb; min-height:100vh; }
+
+    .top-nav { background:var(--red); padding:12px 24px; display:flex; align-items:center; gap:12px; }
+    .top-nav .brand { color:#fff; font-weight:700; font-size:1rem; }
+    .top-nav .sub   { color:#fca5a5; font-size:.8rem; }
+
+    .cert-wrapper { max-width:780px; margin:40px auto; padding:0 16px 48px; }
+
+    /* ── PREVIEW CARD ── */
+    .cert-card {
+      background:#fff;
+      border:3px solid var(--red);
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:0 12px 56px rgba(185,28,28,.15);
+      position:relative;
+    }
+    .cert-banner {
+      background:var(--red);
+      padding:28px 32px 22px;
+      text-align:center;
+      color:#fff;
+    }
+    .cert-banner .drop { font-size:44px; line-height:1; }
+    .cert-banner h1 { font-family:'Playfair Display',serif; font-size:1.6rem; margin:8px 0 2px; }
+    .cert-banner p  { color:var(--red-mid); font-size:.85rem; margin:0; }
+
+    .cert-body { padding:36px 40px 28px; }
+
+    .cert-label { font-size:.78rem; color:#9CA3AF; text-transform:uppercase; letter-spacing:.08em; font-weight:600; }
+
+    .cert-intro { text-align:center; color:#6B7280; font-size:.95rem; margin-bottom:6px; }
+    .cert-name  {
+      text-align:center;
+      font-family:'Playfair Display',serif;
+      font-size:2.4rem;
+      color:var(--red);
+      margin:4px 0 6px;
+      line-height:1.1;
+    }
+    .cert-tagline {
+      text-align:center;
+      color:#374151;
+      font-size:.9rem;
+      margin-bottom:28px;
+    }
+
+    .divider { border:none; border-top:2px solid var(--red-mid); margin:20px 0; }
+
+    /* details grid */
+    .detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px 32px; margin-bottom:28px; }
+    .detail-item {}
+    .detail-value { font-weight:700; font-size:1.05rem; color:#111827; margin-top:2px; }
+
+    /* blood group badge */
+    .bg-badge {
+      display:inline-block;
+      background:var(--red);
+      color:#fff;
+      font-size:1.2rem;
+      font-weight:700;
+      border-radius:50%;
+      width:54px; height:54px;
+      line-height:54px;
+      text-align:center;
+    }
+
+    .thank-you {
+      background:var(--red-pale);
+      border-left:4px solid var(--red);
+      border-radius:0 10px 10px 0;
+      padding:14px 18px;
+      font-style:italic;
+      color:var(--red-dark);
+      font-size:.9rem;
+      margin-bottom:28px;
+    }
+
+    /* action buttons */
+    .action-bar { display:flex; gap:12px; flex-wrap:wrap; }
+    .btn-download {
+      background:var(--red); color:#fff;
+      border:none; border-radius:10px;
+      padding:13px 28px;
+      font-weight:700; font-size:1rem;
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex; align-items:center; gap:8px;
+      transition:background .2s;
+    }
+    .btn-download:hover { background:var(--red-dark); color:#fff; }
+    .btn-back {
+      background:#fff; color:var(--red);
+      border:2px solid var(--red-mid);
+      border-radius:10px;
+      padding:11px 24px;
+      font-weight:600; font-size:.95rem;
+      text-decoration:none;
+      display:inline-flex; align-items:center; gap:6px;
+      transition:border-color .2s;
+    }
+    .btn-back:hover { border-color:var(--red); color:var(--red-dark); }
+
+    /* bottom bar */
+    .cert-footer {
+      background:var(--red);
+      height:10px;
+    }
+
+    @media(max-width:560px){
+      .detail-grid { grid-template-columns:1fr; }
+      .cert-body { padding:24px 20px 20px; }
+      .cert-name { font-size:1.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-nav">
+  <span style="font-size:22px">🩸</span>
+  <div>
+    <div class="brand">{{ org_name }}</div>
+    <div class="sub">Blood Donation Certificate Portal</div>
+  </div>
+</div>
+
+<div class="cert-wrapper">
+
+  <!-- CERT PREVIEW -->
+  <div class="cert-card">
+    <div class="cert-banner">
+      <div class="drop">🩸</div>
+      <h1>{{ org_name }}</h1>
+      <p>Certificate of Appreciation</p>
+    </div>
+
+    <div class="cert-body">
+      <p class="cert-intro">This is to certify that</p>
+      <div class="cert-name">{{ donor.name }}</div>
+      <p class="cert-tagline">
+        has generously donated blood and demonstrated an extraordinary act of humanity.
+      </p>
+
+      <hr class="divider"/>
+
+      <div class="detail-grid">
+        <div class="detail-item">
+          <div class="cert-label">Blood Group</div>
+          <span class="bg-badge">{{ donor.blood_group }}</span>
+        </div>
+        <div class="detail-item">
+          <div class="cert-label">Donation Date</div>
+          <div class="detail-value">📅 {{ donor.don_date }}</div>
+        </div>
+        <div class="detail-item">
+          <div class="cert-label">Donation ID</div>
+          <div class="detail-value">🔖 {{ donor.don_id }}</div>
+        </div>
+        <div class="detail-item">
+          <div class="cert-label">Units Donated</div>
+          <div class="detail-value">💉 {{ donor.units }} unit(s)</div>
+        </div>
+        {% if donor.age %}
+        <div class="detail-item">
+          <div class="cert-label">Age</div>
+          <div class="detail-value">{{ donor.age }} years</div>
+        </div>
+        {% endif %}
+        {% if donor.gender %}
+        <div class="detail-item">
+          <div class="cert-label">Gender</div>
+          <div class="detail-value">{{ donor.gender }}</div>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="thank-you">
+        "Thank you for your noble act of donating blood and helping save lives.
+         Your generosity gives hope to those in need."
+      </div>
+
+      <div class="action-bar">
+        <a href="/download?mobile={{ donor.mobile }}" class="btn-download">
+          ⬇ Download PDF Certificate
+        </a>
+        <a href="/" class="btn-back">← Back</a>
+      </div>
+    </div>
+
+    <div class="cert-footer"></div>
+  </div>
+
+  <!-- success note -->
+  <p style="text-align:center;color:#6B7280;font-size:.82rem;margin-top:20px;">
+    ✅ Record verified · Issued by {{ org_name }}
+  </p>
+
+</div>
+</body>
+</html>

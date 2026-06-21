@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upload Signature – {{ org_name }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    :root { --red:#B91C1C; --red-dark:#7F1D1D; --red-pale:#FEF2F2; --red-mid:#FCA5A5; }
+    body { font-family:'Inter',sans-serif; background:#f9fafb; min-height:100vh; }
+    .top-nav { background:var(--red); padding:12px 24px; display:flex; align-items:center; gap:10px; }
+    .top-nav .brand { color:#fff; font-weight:700; }
+    .wrap { max-width:500px; margin:48px auto; padding:0 16px; }
+    .card { border-radius:16px; box-shadow:0 6px 32px rgba(185,28,28,.1); border:none; overflow:hidden; }
+    .card-header { background:var(--red); color:#fff; padding:20px 24px; font-weight:700; font-size:1.1rem; }
+    .card-body { padding:28px 28px 24px; }
+    .form-control { border:2px solid #E5E7EB; border-radius:10px; }
+    .form-control:focus { border-color:var(--red); box-shadow:0 0 0 3px rgba(185,28,28,.1); }
+    .btn-upload { background:var(--red); color:#fff; border:none; border-radius:10px; padding:12px; font-weight:700; width:100%; cursor:pointer; transition:background .2s; }
+    .btn-upload:hover { background:var(--red-dark); }
+    .alert-ok  { background:#D1FAE5; border:1px solid #6EE7B7; border-radius:10px; color:#065F46; padding:12px 16px; }
+    .alert-err { background:var(--red-pale); border:1px solid var(--red-mid); border-radius:10px; color:var(--red-dark); padding:12px 16px; }
+    .sig-preview { border:2px dashed var(--red-mid); border-radius:10px; padding:16px; text-align:center; background:var(--red-pale); }
+    .sig-preview img { max-height:80px; max-width:100%; }
+    .tip { font-size:.82rem; color:#6B7280; margin-top:6px; }
+    .drop-zone {
+      border: 2px dashed var(--red-mid);
+      border-radius: 12px;
+      padding: 32px 16px;
+      text-align: center;
+      background: var(--red-pale);
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      position: relative;
+    }
+    .drop-zone:hover, .drop-zone.dragover { border-color:var(--red); background:#fde8e8; }
+    .drop-zone input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+    .drop-zone .dz-icon { font-size:36px; margin-bottom:8px; }
+    .drop-zone .dz-text { color:var(--red-dark); font-weight:600; font-size:.95rem; }
+    .drop-zone .dz-hint { color:#9CA3AF; font-size:.8rem; margin-top:4px; }
+    #preview-box { display:none; margin-top:12px; }
+    #preview-box img { max-height:70px; border:1px solid var(--red-mid); border-radius:8px; padding:4px; }
+  </style>
+</head>
+<body>
+
+<div class="top-nav">
+  <span style="font-size:20px">🩸</span>
+  <div class="brand">{{ org_name }} · Admin Panel</div>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <div class="card-header">✍️ Upload Authorised Signature</div>
+    <div class="card-body">
+
+      {% if has_sig %}
+      <div class="sig-preview mb-3">
+        <p style="font-size:.8rem;color:#6B7280;margin-bottom:8px;">Current signature on certificates:</p>
+        <img src="/static/signature.png?v={{ range(1,99999)|random }}" alt="Current Signature"/>
+      </div>
+      {% endif %}
+
+      {% if msg %}
+        <div class="{{ 'alert-ok' if success else 'alert-err' }} mb-3">
+          {{ '✅' if success else '⚠️' }} {{ msg }}
+        </div>
+      {% endif %}
+
+      <form method="POST" enctype="multipart/form-data">
+
+        <label class="form-label fw-semibold mb-1">Signature Image</label>
+        <div class="drop-zone" id="dropZone">
+          <input type="file" name="signature" id="sigFile" accept=".png,.jpg,.jpeg" onchange="previewFile(this)"/>
+          <div class="dz-icon">🖊️</div>
+          <div class="dz-text">Click or drag & drop your signature</div>
+          <div class="dz-hint">PNG with transparent background works best · JPG also accepted</div>
+        </div>
+        <div id="preview-box">
+          <p style="font-size:.8rem;color:#6B7280;margin-bottom:4px;">Preview:</p>
+          <img id="preview-img" src="" alt="Preview"/>
+        </div>
+
+        <p class="tip mt-2">
+          💡 <strong>Best result:</strong> Sign on white paper, photograph it, then use
+          <a href="https://www.remove.bg" target="_blank">remove.bg</a> (free) to get a transparent PNG.
+          The signature will appear above the line on the certificate.
+        </p>
+
+        <hr/>
+
+        <label class="form-label fw-semibold mb-1">Admin Password</label>
+        <input type="password" name="password" class="form-control mb-3" placeholder="Enter admin password" required/>
+        <p class="tip">Default password: <code>chatra2024</code> — set <code>ADMIN_PASSWORD</code> env var on Render to change it.</p>
+
+        <button type="submit" class="btn-upload mt-2">Upload Signature</button>
+      </form>
+
+      <hr class="mt-4"/>
+      <p style="font-size:.82rem;color:#9CA3AF;text-align:center;">
+        <a href="/" style="color:var(--red);">← Back to home</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function previewFile(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById('preview-img').src = e.target.result;
+        document.getElementById('preview-box').style.display = 'block';
+        document.querySelector('.dz-text').textContent = input.files[0].name;
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+  // Drag-over highlight
+  const dz = document.getElementById('dropZone');
+  dz.addEventListener('dragover', () => dz.classList.add('dragover'));
+  dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+  dz.addEventListener('drop', () => dz.classList.remove('dragover'));
+</script>
+</body>
+</html>

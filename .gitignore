@@ -1,0 +1,17 @@
+# Credentials — NEVER commit this!
+credentials.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+env/
+.env
+
+# Generated files
+static/qr.png
+
+# OS
+.DS_Store
+Thumbs.db
