@@ -22,7 +22,7 @@ app.secret_key = os.environ.get("SECRET_KEY", "chatra-somaj-blood-cert-secret-20
 SHEET_NAME      = "Blood Donor Database"
 ORG_NAME        = "Chatra Somaj"
 ORG_SUBTITLE    = "Blood Donation Camp"
-APP_URL         = os.environ.get("APP_URL", "https://your-app.onrender.com")
+APP_URL         = os.environ.get("APP_URL", "https://blood-certificate.onrender.com")
 CREDS_FILE      = "credentials.json"
 
 SCOPE = [
