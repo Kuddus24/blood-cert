@@ -4,6 +4,7 @@ import json
 import logging
 import tempfile
 from datetime import datetime
+import urllib.parse
 
 import qrcode
 import gspread
@@ -268,7 +269,9 @@ def generate_certificate_pdf(donor: dict) -> io.BytesIO:
                         "Issued on: " + datetime.now().strftime("%d %B %Y"))
 
     # ── QR CODE ──────────────────────────────────────────────
-    verify_url = f"{_base_url()}/verify/{donor['don_id']}"
+    # Space in "TEST 01" → encoded as "TEST%2001" in the URL
+    encoded_id = urllib.parse.quote(donor['don_id'].strip(), safe='')
+    verify_url = f"{_base_url()}/verify/{encoded_id}"
     log.info("QR verify URL: %s", verify_url)
 
     qr_buf  = _make_qr(verify_url)
@@ -357,22 +360,32 @@ def download():
 
 @app.route("/verify/<path:don_id>")
 def verify(don_id):
+    # URL-decode in case the ID was encoded (e.g. spaces as %20)
+    don_id_clean = urllib.parse.unquote(don_id).strip()
+    log.info("Verifying donation ID: '%s'", don_id_clean)
     try:
-        sheet   = get_sheet()
-        rows    = sheet.get_all_values()
-        donor   = None
+        sheet = get_sheet()
+        rows  = sheet.get_all_values()
+        donor = None
         for row in rows[1:]:
-            if len(row) > COL["don_id"] and \
-               row[COL["don_id"]].strip() == don_id.strip():
-                donor = _row_to_donor(row)
-                break
+            if len(row) > COL["don_id"]:
+                sheet_id = row[COL["don_id"]].strip()
+                # Match exactly, or with spaces collapsed
+                if sheet_id == don_id_clean or                    sheet_id.replace(" ", "") == don_id_clean.replace(" ", ""):
+                    donor = _row_to_donor(row)
+                    log.info("Verified: found donor '%s'", donor['name'])
+                    break
+        if donor is None:
+            log.warning("Verify: no match for don_id '%s'", don_id_clean)
     except Exception as e:
         log.error("Verify sheet error: %s", e)
         donor = None
-
+ 
+    now = datetime.now().strftime("%d %B %Y, %I:%M %p")
     return render_template("verify.html",
-                           donor=donor, don_id=don_id, org_name=ORG_NAME)
-
+                           donor=donor, don_id=don_id_clean,
+                           org_name=ORG_NAME, now=now)
+ 
 
 @app.route("/health")
 def health():
